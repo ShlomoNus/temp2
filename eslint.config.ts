@@ -1,9 +1,13 @@
+import path from "path";
+
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
 import { importX } from "eslint-plugin-import-x";
 import globals from "globals";
-import tsParser from "@typescript-eslint/parser";
+
+/** Project root when ESLint runs from the repo (npm run lint / IDE workspace). */
+const eslintConfigDir = process.cwd();
 
 export default defineConfig([
   // --- presets ---
@@ -15,7 +19,7 @@ export default defineConfig([
   {
     files: ['**/*.{tsx}'],
     languageOptions: {
-      parser: tsParser,
+      parser: tseslint.parser,
       parserOptions: {
         projectService: true,
         tsconfigRootDir: process.cwd(),
@@ -50,10 +54,19 @@ export default defineConfig([
   {
     files: ["src/**/*.ts"],
     languageOptions: {
-      parser: tsParser,
+      parser: tseslint.parser,
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: process.cwd(),
+        tsconfigRootDir: eslintConfigDir,
+      },
+    },
+    settings: {
+      "import-x/resolver": {
+        typescript: {
+          project: path.join(eslintConfigDir, "tsconfig.json"),
+          tsconfigRootDir: eslintConfigDir,
+          alwaysTryTypes: true,
+        },
       },
     },
     rules: {
